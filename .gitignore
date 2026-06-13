@@ -1,0 +1,8 @@
+# binaries
+*.exe
+
+# vscode
+.vscode/
+
+# env
+.env
