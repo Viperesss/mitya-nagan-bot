@@ -1,37 +1,36 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	tgProcessor "the-mitya-nagan-bot/clients/events/telegram"
 	tgClient "the-mitya-nagan-bot/clients/telegram"
 	event_consumer "the-mitya-nagan-bot/consumer/event-consumer"
-	"the-mitya-nagan-bot/storage/files"
+	"the-mitya-nagan-bot/storage/sqlite"
 )
 
 const (
-	storagePath = "storage"
-	batchSize   = 100
-)
-
-var (
-	token = flag.String(
-		"token",
-		"",
-		"token for access to telegram bot")
-
-	host = flag.String(
-		"host",
-		"",
-		"the telegram API host")
+	sqliteStoragePath = "data/sqlite/storage.db"
+	batchSize         = 100
+	hostAPI           = "api.telegram.org"
 )
 
 // api.telegram.org
 func main() {
-	flag.Parse()
+	// s := files.New(storagePath) // файловое хранение
+	s, err := sqlite.New(sqliteStoragePath)
+	if err != nil {
+		log.Fatal("cannot connect to storage: ", err)
+	}
 
-	tgClient := tgClient.New(mustHost(), mustToken())
-	eventsProcessor := tgProcessor.New(tgClient, files.New(storagePath))
+	// TODO context.WithTimeOut 5 sec
+	if err := s.Init(context.TODO()); err != nil {
+		log.Fatal("cannot init storage: ", err)
+	}
+
+	tgClient := tgClient.New(hostAPI, mustToken())
+	eventsProcessor := tgProcessor.New(tgClient, s)
 
 	log.Print("service started")
 
@@ -45,17 +44,17 @@ func main() {
 }
 
 func mustToken() string {
+	token := flag.String(
+		"token",
+		"",
+		"token for access to telegram bot")
+
+	flag.Parse()
+
 	// Во время Parse() пакет flag записывает значение прямо по адресу переменной, поэтому успользуется pointer
 	if *token == "" {
 		log.Fatal("-token - is not specified")
 	}
 
 	return *token
-}
-
-func mustHost() string {
-	if *host == "" {
-		log.Fatal("-host - is not specified")
-	}
-	return *host
 }

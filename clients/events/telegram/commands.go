@@ -1,6 +1,7 @@
 package telegram
 
 import (
+	"context"
 	"errors"
 	"log"
 	"net/url"
@@ -44,7 +45,7 @@ func (p *Processor) savePage(text string, chatID int, userName string) error {
 		UserName: userName,
 	}
 
-	isExists, err := p.storage.IsExists(page)
+	isExists, err := p.storage.IsExists(context.TODO(), page)
 	if err != nil {
 		return e.Wrap("events commands savePage fail, cannot use IsExists:", err)
 	}
@@ -52,7 +53,7 @@ func (p *Processor) savePage(text string, chatID int, userName string) error {
 		return p.tg.SendMessage(chatID, msgAlreadyExists)
 	}
 
-	if err := p.storage.Save(page); err != nil {
+	if err := p.storage.Save(context.TODO(), page); err != nil {
 		return e.Wrap("events commands savePage fail, cannot save page in the storage:", err)
 	}
 
@@ -63,7 +64,7 @@ func (p *Processor) savePage(text string, chatID int, userName string) error {
 }
 
 func (p *Processor) sendRandom(chatID int, userName string) error {
-	page, err := p.storage.PickRandom(userName)
+	page, err := p.storage.PickRandom(context.TODO(), userName)
 	if err != nil && !errors.Is(err, storage.ErrNoSavedPages) {
 		return e.Wrap("events commands SendRandom fail, cannot PickRandom:", err)
 	}
@@ -76,7 +77,7 @@ func (p *Processor) sendRandom(chatID int, userName string) error {
 		return e.Wrap("events commands savePage fail, cannot send message:", err)
 	}
 
-	return p.storage.Remove(page)
+	return p.storage.Remove(context.TODO(), page)
 }
 
 func (p *Processor) sendHello(chatID int) error {

@@ -1,5 +1,9 @@
 # binaries
 *.exe
+bot
+
+# database
+*.db
 
 # vscode
 .vscode/

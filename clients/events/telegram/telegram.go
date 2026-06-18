@@ -68,7 +68,7 @@ func (p *Processor) Process(event events.Event) error {
 	case events.Message:
 		return p.processMesage(event)
 	default:
-		return e.Wrap("cannot process message:", errors.New("unknown evetn type"))
+		return e.Wrap("cannot process message:", errors.New("unknown event type"))
 	}
 }
 
@@ -97,7 +97,7 @@ func event(upd telegram.Update) events.Event {
 	updType := fetchType(upd)
 
 	res := events.Event{
-		Type: fetchType(upd),
+		Type: updType,
 		Text: fetchText(upd),
 	}
 
