@@ -8,7 +8,8 @@ A Telegram bot written in Go that allows users to save web pages and read them l
 * Store pages separately for each user
 * Get a random saved page
 * Remove pages after reading
-* Simple file-based storage
+* SQLite-based storage
+* Duplicate link detection
 
 ## Commands
 
@@ -16,36 +17,41 @@ A Telegram bot written in Go that allows users to save web pages and read them l
 | -------- | ----------------------- |
 | `/start` | Show help message       |
 | `/help`  | Show help message       |
-| `/rnd`   | Get a random saved page |
+| `/random`   | Get a random saved page |
 
 ## Technologies
 
 * Go
 * Telegram Bot API
-* File-based storage
+* SQLite
+* go-sqlite3
 
 ## Project Structure
 
 ```text
-clients/     - Telegram API client
-consumer/    - Event processing loop
-storage/     - Page storage
-lib/         - Shared utilities
-cmd/bot/     - Application entry point
+clients/         - Telegram API clients
+consumer/        - Event processing
+storage/         - Storage interfaces
+storage/sqlite/  - SQLite implementation
+lib/             - Shared utilities
+cmd/bot/         - Application entry point
+data/sqlite/     - Database files
 ```
 
 ## Run
 
 ```bash
-go run ./cmd/bot -host 'api.telegram.org' -token '<TOKEN>'
+go run ./cmd/bot -token '<TOKEN>'
 ```
 
 ## Future Improvements
 
-* SQLite storage
 * Retry mechanism with backoff
 * Concurrent event processing
+* Unit and integration tests
+* Docker support
 * LLM integration
+* Web interface for saved pages
 
 ```
 ```
