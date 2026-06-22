@@ -16,7 +16,6 @@ const (
 	hostAPI           = "api.telegram.org"
 )
 
-// api.telegram.org
 func main() {
 	// s := files.New(storagePath) // файловое хранение
 	s, err := sqlite.New(sqliteStoragePath)

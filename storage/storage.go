@@ -1,4 +1,5 @@
 // Абстракция
+// Package storage defines page storage interfaces and entities.
 package storage
 
 import (
@@ -11,9 +12,11 @@ import (
 )
 
 // Нужно для того чтобы бот мог сообщить пользователю о там что пользователь пока ничего не сохранил
+// ErrNoSavedPages is returned when a user has no saved pages.
 var ErrNoSavedPages = errors.New("no saved page")
 
 // сущности передаём по указателю чтобы не создавать копии
+// Storage defines operations for storing and retrieving pages.
 type Storage interface {
 	Save(ctx context.Context, p *Page) error // encode
 	Remove(ctx context.Context, p *Page) error
@@ -23,11 +26,13 @@ type Storage interface {
 
 // сущность которую и будем хранить
 // страница, ссылку на которую мы скинули боту через клиент
+// Page contains information about a page saved by a user.
 type Page struct {
 	URL      string
 	UserName string
 }
 
+// Hash returns a hash derived from the page URL and user name.
 func (p Page) Hash() (string, error) {
 	h := sha1.New()
 	if _, err := io.WriteString(h, p.URL); err != nil {

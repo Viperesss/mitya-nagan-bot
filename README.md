@@ -52,6 +52,3 @@ go run ./cmd/bot -token '<TOKEN>'
 * Docker support
 * LLM integration
 * Web interface for saved pages
-
-```
-```

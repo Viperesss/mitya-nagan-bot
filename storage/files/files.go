@@ -1,4 +1,4 @@
-// реализация хранения через файлы
+// Package files implements file-based page storage.
 package files
 
 import (
@@ -13,17 +13,20 @@ import (
 )
 
 // конкретная реализация интерфейса
+// Storage stores pages on the local filesystem.
 type Storage struct {
 	basePath string
 }
 
 const defaultPerm = 0774
 
+// New create a new file storage using the provided base path
 func New(path string) Storage {
 	return Storage{basePath: path}
 }
 
 // метод интерфейса
+// Save persists the page in the filestorage.
 func (s Storage) Save(page *storage.Page) (err error) {
 	filePath := filepath.Join(s.basePath, page.UserName)
 
@@ -57,6 +60,7 @@ func (s Storage) Save(page *storage.Page) (err error) {
 	return nil
 }
 
+// Remove deletes the page from storage.
 func (s Storage) Remove(p *storage.Page) error {
 	fileName, err := fileName(p)
 	if err != nil {
@@ -73,6 +77,7 @@ func (s Storage) Remove(p *storage.Page) error {
 	return nil
 }
 
+// PickRandom returns a random page saved by the user.
 func (s Storage) PickRandom(userName string) (page *storage.Page, err error) {
 	path := filepath.Join(s.basePath, userName)
 
@@ -92,6 +97,7 @@ func (s Storage) PickRandom(userName string) (page *storage.Page, err error) {
 	return s.decodePage(filepath.Join(path, file.Name()))
 }
 
+// IsExists reports whether the page is already stored.
 func (s Storage) IsExists(p *storage.Page) (bool, error) {
 	fileName, err := fileName(p)
 	if err != nil {
@@ -110,6 +116,7 @@ func (s Storage) IsExists(p *storage.Page) (bool, error) {
 	return true, nil
 }
 
+// decodePage reads and decode a pages from a file.
 func (s Storage) decodePage(filePath string) (*storage.Page, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -128,6 +135,7 @@ func (s Storage) decodePage(filePath string) (*storage.Page, error) {
 }
 
 // Если в будующем захотим поменять способ именования
+// fileName returns the filename for the page.
 func fileName(p *storage.Page) (string, error) {
 	return p.Hash()
 }

@@ -1,3 +1,4 @@
+// Package telegram provides s client for the Telegram Bot API.
 package telegram
 
 import (
@@ -11,6 +12,7 @@ import (
 )
 
 // с клиентом работаем через указатель чтобы не копировать объект
+// Clients communicates with the Telegram Bot API.
 type Client struct {
 	host     string      // хост API сервиса телеграмма
 	basePath string      // префикс с которого начинаются все запросы
@@ -24,6 +26,7 @@ type Client struct {
 
 // tg-bot.com/bot<token>
 
+// New cerates a new Telegram Bot API client.
 func New(host, token string) *Client {
 	return &Client{
 		host:     host,
@@ -36,6 +39,7 @@ func New(host, token string) *Client {
 // limit - сколько максимум обновлений вернуть
 
 // формируем запрос в API тг на получение сообщений
+// Updates retrieves updates from Telegarm.
 func (c *Client) Updates(offset, limit int) ([]Update, error) {
 	q := url.Values{}                     // структура для хранения GET-параметров URL, контейнер для GET-параметров запроса
 	q.Add("offset", strconv.Itoa(offset)) // .Add добавляет параметр в будущий URL-запрос
@@ -56,6 +60,7 @@ func (c *Client) Updates(offset, limit int) ([]Update, error) {
 }
 
 // формируем запрос в API тг на отправку сообщений
+// SendMessage sends a text message to the specified chat.
 func (c *Client) SendMessage(chatId int, text string) error {
 	q := url.Values{} // подготавливаем параметры запроса
 	q.Add("chat_id", strconv.Itoa(chatId))

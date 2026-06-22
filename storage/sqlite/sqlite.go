@@ -1,3 +1,4 @@
+// Package sqlite stores saved pages in a SQLite database.
 package sqlite
 
 import (
@@ -9,10 +10,12 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// Storage stores pages in a SQLite database.
 type Storage struct {
 	db *sql.DB
 }
 
+// New creates a new SQLite database storage using the provided base path.
 func New(path string) (*Storage, error) {
 	db, err := sql.Open("sqlite3", path)
 	if err != nil {
@@ -27,11 +30,7 @@ func New(path string) (*Storage, error) {
 	return &Storage{db: db}, nil
 }
 
-// Save(p *Page) error // encode
-// 	Remove(p *Page) error
-// 	PickRandom(userName string) (*Page, error)
-// 	IsExists(p *Page) (bool, error)
-
+// Save stores the page in the database.
 func (s *Storage) Save(ctx context.Context, p *storage.Page) error {
 	q := `INSERT INTO pages (url, user_name) VALUES (?, ?)` // ?, ? - аргументы запроса
 	_, err := s.db.ExecContext(ctx, q, p.URL, p.UserName)   // противодействие SQL-инъекциям
@@ -41,6 +40,7 @@ func (s *Storage) Save(ctx context.Context, p *storage.Page) error {
 	return nil
 }
 
+// PickRandom returns a random page saved by the user.
 func (s *Storage) PickRandom(ctx context.Context, userName string) (*storage.Page, error) {
 	q := `SELECT url FROM pages WHERE user_name = ? ORDER BY RANDOM() LIMIT 1`
 
@@ -60,6 +60,7 @@ func (s *Storage) PickRandom(ctx context.Context, userName string) (*storage.Pag
 	return &storage.Page{URL: url, UserName: userName}, nil
 }
 
+// Remove deletes the page from the database.
 func (s *Storage) Remove(ctx context.Context, p *storage.Page) error {
 	q := `DELETE FROM pages WHERE url = ? AND user_name = ?`
 	_, err := s.db.ExecContext(ctx, q, p.URL, p.UserName)

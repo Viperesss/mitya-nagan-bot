@@ -1,3 +1,4 @@
+// Package telegram contains Telegram-specific bot logic.
 package telegram
 
 import (
@@ -22,7 +23,7 @@ func (p *Processor) doCmd(text string, chatID int, userName string) error {
 
 	log.Printf("got new command '%s' from '%s'", text, userName)
 
-	if isAddCmd(text) {
+	if isURL(text) {
 		return p.savePage(text, chatID, userName)
 	}
 
@@ -94,7 +95,7 @@ func (p *Processor) sendHelp(chatID int) error {
 	return nil
 }
 
-func isAddCmd(text string) bool {
+func isURL(text string) bool {
 	link, err := url.Parse(text)
 	if err == nil && link.Host != "" {
 		return true

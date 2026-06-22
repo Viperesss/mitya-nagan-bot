@@ -1,3 +1,4 @@
+// Package telegram implements Telegram-based event processing.
 package telegram
 
 const (
