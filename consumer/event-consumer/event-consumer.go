@@ -2,10 +2,14 @@
 package event_consumer
 
 import (
+	"fmt"
 	"log"
+	"sync"
 	"the-mitya-nagan-bot/clients/events"
 	"time"
 )
+
+const maxRetries = 5
 
 // Consumer fetches events and passes them to a processor.
 type Consumer struct {
@@ -46,18 +50,56 @@ func (c *Consumer) Start() error {
 	}
 }
 
-// добавить ассинхронность
-// https://youtu.be/HTjNyoQumJk?si=zEBxiTxU2mqQE6Ml&t=500
-// handleEvents processes a batch of events.
-func (c *Consumer) handleEvents(events []events.Event) error {
-	for _, event := range events {
-		log.Printf("got new event: %s", event.Text)
+const workersCount = 3
 
-		if err := c.processor.Process(event); err != nil {
-			log.Printf("can't handle event: %s", err.Error())
-			// добавить механизм retry'а
-			continue
+// handleEvents processes a batch of events.
+func (c *Consumer) handleEvents(evnts []events.Event) error {
+	var wg sync.WaitGroup
+
+	eventsChan := make(chan events.Event)
+
+	for i := 0; i < workersCount; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+
+			for event := range eventsChan {
+				log.Printf("got new event: %s", event.Text)
+
+				if err := c.retry(event); err != nil {
+					log.Print("Timeout exceeded:", err)
+				}
+			}
+		}()
+	}
+
+	for _, event := range evnts {
+		eventsChan <- event
+	}
+	close(eventsChan)
+
+	wg.Wait()
+
+	return nil
+}
+
+func (c *Consumer) retry(event events.Event) error {
+	delay := time.Millisecond * 500
+	var err error
+
+	for i := 1; i <= maxRetries; i++ {
+		err = c.processor.Process(event)
+		if err == nil {
+			return nil
+		}
+
+		log.Printf("can't handle event: %v, attempt: %d/%d", err, i, maxRetries)
+
+		if i < maxRetries {
+			time.Sleep(delay)
+			delay *= 2
 		}
 	}
-	return nil
+
+	return fmt.Errorf("event processing failed after %d attempts: %w", maxRetries, err)
 }
