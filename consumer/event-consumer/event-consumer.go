@@ -53,7 +53,7 @@ func (c *Consumer) Start() error {
 const workersCount = 3
 
 // handleEvents processes a batch of events.
-func (c *Consumer) handleEvents(evnts []events.Event) error {
+func (c *Consumer) handleEvents(eventsList []events.Event) error {
 	var wg sync.WaitGroup
 
 	eventsChan := make(chan events.Event)
@@ -73,7 +73,7 @@ func (c *Consumer) handleEvents(evnts []events.Event) error {
 		}()
 	}
 
-	for _, event := range evnts {
+	for _, event := range eventsList {
 		eventsChan <- event
 	}
 	close(eventsChan)
