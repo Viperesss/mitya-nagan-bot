@@ -1,6 +1,8 @@
 # Telegram Read Later Bot
 
-A Telegram bot written in Go that allows users to save web pages and read them later. Users can send links to the bot, store them in a personal collection, and retrieve a random unread page at any time.
+A Telegram bot written in Go that combines a **read-it-later** service with an AI-powered chat assistant.
+
+Users can save web pages for later reading, retrieve a random unread page, or simply chat with the bot through an LLM powered by the OpenRouter API.
 
 ## Features
 
@@ -10,6 +12,7 @@ A Telegram bot written in Go that allows users to save web pages and read them l
 * Remove pages after reading
 * SQLite-based storage
 * Duplicate link detection
+* AI-powered conversations via OpenRouter
 * Concurrent event processing with a worker pool
 * Automatic retry mechanism with exponential backoff
 
@@ -21,38 +24,54 @@ A Telegram bot written in Go that allows users to save web pages and read them l
 | `/help`  | Show help message       |
 | `/random`   | Get a random saved page |
 
+Any non-command text message is forwarded to the AI assistant.
+
 ## Technologies
 
 * Go
 * Telegram Bot API
+* OpenRouter API
 * SQLite
 * go-sqlite3
+* godotenv
 * Goroutines & Channels
 * Worker Pool Pattern
 
 ## Project Structure
 
 ```text
-clients/         - Telegram API clients
-consumer/        - Event processing
-storage/         - Storage interfaces
-storage/files/   - file-based storage
-storage/sqlite/  - SQLite implementation
-lib/             - Shared utilities
-cmd/bot/         - Application entry point
-data/sqlite/     - Database files
+clients/
+    events/       - Event processing
+    llm/          - OpenRouter client
+    telegram/     - Telegram Bot API client
+
+consumer/         - Event consumer with worker pool
+storage/
+    files/        - File-based storage
+    sqlite/       - SQLite implementation
+
+lib/              - Shared utilities
+cmd/bot/          - Application entry point
+data/sqlite/      - Database files
+```
+
+## Configuration
+
+Create a `.env` file in the project root:
+
+```env
+OPENROUTER_API_KEY=<your_api_key>
 ```
 
 ## Run
 
 ```bash
-go run ./cmd/bot -token '<TOKEN>'
+go run ./cmd/bot -token "<TOKEN>"
 ```
 
 ## Future Improvements
 
 * Unit and integration tests
 * Docker support
-* LLM integration
 * Web interface for saved pages
 * Graceful shutdown with context cancellation
