@@ -4,6 +4,7 @@ package telegram
 import (
 	"errors"
 	"the-mitya-nagan-bot/clients/events"
+	"the-mitya-nagan-bot/clients/llm"
 	"the-mitya-nagan-bot/clients/telegram"
 	"the-mitya-nagan-bot/lib/e"
 	"the-mitya-nagan-bot/storage"
@@ -14,6 +15,7 @@ import (
 // Processor fetches events from Telegram and processes them.
 type Processor struct {
 	tg      *telegram.Client
+	llm     *llm.Client
 	offset  int // значение offset должно переживать много вызовов метода. Поэтому оно хранится внутри объекта
 	storage storage.Storage
 }
@@ -32,9 +34,10 @@ type Meta struct {
 // - не копируем Processor
 // - методы смогут изменять его состояние (offset и др.)
 // New creates a new Telegram event processor.
-func New(client *telegram.Client, storage storage.Storage) *Processor {
+func New(client *telegram.Client, llm *llm.Client, storage storage.Storage) *Processor {
 	return &Processor{
 		tg:      client,
+		llm:     llm,
 		storage: storage,
 	}
 }

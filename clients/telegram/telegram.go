@@ -9,6 +9,7 @@ import (
 	"path"
 	"strconv"
 	"the-mitya-nagan-bot/lib/e"
+	"time"
 )
 
 // с клиентом работаем через указатель чтобы не копировать объект
@@ -27,12 +28,24 @@ type Client struct {
 // tg-bot.com/bot<token>
 
 // New cerates a new Telegram Bot API client.
-func New(host, token string) *Client {
+func New(host, token string) (*Client, error) {
+	proxyURL, err := url.Parse("http://127.0.0.1:10801")
+	if err != nil {
+		return nil, err
+	}
+
+	httpClient := http.Client{
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
+		Timeout: 30 * time.Second,
+	}
+
 	return &Client{
 		host:     host,
 		basePath: "bot" + token,
-		client:   http.Client{}, // объект, который умеет общаться по HTTP
-	}
+		client:   httpClient, // объект, который умеет общаться по HTTP
+	}, nil
 }
 
 // offset - с какого обновления начинать выдачу, начиная с какого update_id получать обновления

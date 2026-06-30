@@ -9,7 +9,10 @@ import (
 	"time"
 )
 
-const maxRetries = 5
+const (
+	maxRetries   = 5
+	workersCount = 10
+)
 
 // Consumer fetches events and passes them to a processor.
 type Consumer struct {
@@ -50,8 +53,6 @@ func (c *Consumer) Start() error {
 	}
 }
 
-const workersCount = 3
-
 // handleEvents processes a batch of events.
 func (c *Consumer) handleEvents(eventsList []events.Event) error {
 	var wg sync.WaitGroup
@@ -64,8 +65,6 @@ func (c *Consumer) handleEvents(eventsList []events.Event) error {
 			defer wg.Done()
 
 			for event := range eventsChan {
-				log.Printf("got new event: %s", event.Text)
-
 				if err := c.retry(event); err != nil {
 					log.Print("Timeout exceeded:", err)
 				}

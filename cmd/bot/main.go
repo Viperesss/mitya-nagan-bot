@@ -4,10 +4,14 @@ import (
 	"context"
 	"flag"
 	"log"
+	"os"
 	tgProcessor "the-mitya-nagan-bot/clients/events/telegram"
+	"the-mitya-nagan-bot/clients/llm"
 	tgClient "the-mitya-nagan-bot/clients/telegram"
 	event_consumer "the-mitya-nagan-bot/consumer/event-consumer"
 	"the-mitya-nagan-bot/storage/sqlite"
+
+	"github.com/joho/godotenv"
 )
 
 const (
@@ -17,6 +21,15 @@ const (
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("failed Load .env: ", err)
+	}
+
+	apiKey := os.Getenv("OPENROUTER_API_KEY")
+	if apiKey == "" {
+		log.Fatal("api key cannot was empty")
+	}
+
 	// s := files.New(storagePath) // файловое хранение
 	s, err := sqlite.New(sqliteStoragePath)
 	if err != nil {
@@ -28,8 +41,14 @@ func main() {
 		log.Fatal("cannot init storage: ", err)
 	}
 
-	tgClient := tgClient.New(hostAPI, mustToken())
-	eventsProcessor := tgProcessor.New(tgClient, s)
+	tgClient, err := tgClient.New(hostAPI, mustToken())
+	if err != nil {
+		log.Fatal("cannot init tgClient: ", err)
+	}
+
+	llmClient := llm.New(apiKey)
+
+	eventsProcessor := tgProcessor.New(tgClient, llmClient, s)
 
 	log.Print("service started")
 

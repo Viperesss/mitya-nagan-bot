@@ -35,7 +35,7 @@ func (p *Processor) doCmd(text string, chatID int, userName string) error {
 	case StartCmd:
 		return p.sendHello(chatID)
 	default:
-		return p.tg.SendMessage(chatID, msgUnknownCommand)
+		return p.sendAiResp(chatID, text, userName)
 	}
 }
 
@@ -101,4 +101,19 @@ func isURL(text string) bool {
 		return true
 	}
 	return false
+}
+
+func (p *Processor) sendAiResp(chatID int, userPrompt, userName string) error {
+	aiResp, err := p.llm.Chat(userPrompt)
+	if err != nil {
+		return e.Wrap("events commands sendAiResp fail, cannot chat llm:", err)
+	}
+
+	if err := p.tg.SendMessage(chatID, aiResp); err != nil {
+		return e.Wrap("events commands sendAiResp fail, cannot send message:", err)
+	}
+
+	log.Printf("send '%s' for '%s'", aiResp, userName)
+
+	return nil
 }

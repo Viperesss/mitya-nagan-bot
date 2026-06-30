@@ -9,10 +9,9 @@ const (
 	Команда /random выдаст случайную маляву из запасов.
 	После выдачи бумага уходит в расход.`
 
-	msgHello = "Здарова тяу.\n\n" + msgHelp
+	msgHello = "Здарова тяу.\n" + msgHelp
 
-	msgUnknownCommand = "Не понял базара."
-	msgNoSavedPages   = "Пусто в схроне. Ни одной малявы не завалялось."
-	msgSaved          = "Принял. Спрятал в общак."
-	msgAlreadyExists  = "Эта малява уже в деле."
+	msgNoSavedPages  = "Пусто в схроне. Ни одной малявы не завалялось."
+	msgSaved         = "Принял. Спрятал в общак."
+	msgAlreadyExists = "Эта малява уже в деле."
 )
